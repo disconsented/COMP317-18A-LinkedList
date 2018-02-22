@@ -854,7 +854,7 @@ public class MLinkedList<T> implements List{
          */
         @Override
         public void set(Object o) {
-
+            current.setElement((T) o);
         }
 
         /**
@@ -879,7 +879,7 @@ public class MLinkedList<T> implements List{
          */
         @Override
         public void add(Object o) {
-
+            current.setNextNode(new Node<T>((T) o, current.getNextNode()));
         }
     }
 }
