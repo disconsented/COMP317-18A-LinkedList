@@ -1,8 +1,8 @@
 import java.util.*;
 
-public class MLinkedList<Type> implements List{
+public class MLinkedList<T> implements List{
     private int total;
-    private Node<Type> first;
+    private Node<T> first;
 
 
     /**
@@ -249,7 +249,8 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public void clear() {
-
+        total = 0;
+        first = null;
     }
 
     /**
@@ -296,6 +297,12 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public Object set(int index, Object element) {
+        if (index > total)
+            throw new IndexOutOfBoundsException();
+
+        if (element == null)
+            throw new NullPointerException();
+
         Object oldElement = null;
         Node currentNode = first;
         for (int i = 0; i < index; i++) {
@@ -328,7 +335,21 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public void add(int index, Object element) {
-
+        if (1 > index || index > size()){
+            throw new IndexOutOfBoundsException();
+        } else if(element == null){
+            throw new NullPointerException();
+        }
+        Node<T> current = null;
+        for (int i = 0; i < index; i++) {
+            current = current.getNextNode();
+        }
+        if(current.containsNextNode()){
+            Node node = new Node<T>((T) element, current.getNextNode());
+            current.setNextNode(node);
+        } else {
+            current.setNextNode(new Node<T>((T) element));
+        }
     }
 
     /**
@@ -383,7 +404,16 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public int indexOf(Object o) {
-        return 0;
+        Node currentNode = first;
+        for (int i = 0; i < total; i++) {
+            if(currentNode.getElement() == o){
+                return i;
+            } else {
+                currentNode = currentNode.getNextNode();
+            }
+
+        }
+        return -1;
     }
 
     /**
@@ -405,7 +435,16 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public int lastIndexOf(Object o) {
-        return 0;
+        int index = -1;
+        Node currentNode = first;
+        for (int i = 0; i < total; i++) {
+            if(currentNode.getElement() == o){
+                index = i;
+            }
+            currentNode = currentNode.getNextNode();
+        }
+
+        return index;
     }
 
     /**
@@ -417,7 +456,8 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public ListIterator listIterator() {
-        return null;
+
+        return new LLIterator(this);
     }
 
     /**
@@ -437,7 +477,15 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public ListIterator listIterator(int index) {
-        return null;
+        if(1 > index || index > size())
+            throw new IndexOutOfBoundsException();
+
+        LLIterator llIterator = new LLIterator(this);
+        for (int i = 0; i < index; i++) {
+            llIterator.next();
+        }
+
+        return llIterator;
     }
 
     /**
@@ -476,7 +524,23 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public List subList(int fromIndex, int toIndex) {
-        return null;
+        if(1 > fromIndex || toIndex > total){
+            throw new IndexOutOfBoundsException();
+        }
+        MLinkedList<T> linkedList = new MLinkedList();
+        Node start = first;
+        //Itterate to where we want to be
+        for (int i = 0; i < fromIndex; i++) {
+            start = start.getNextNode();
+        }
+
+        //Continue until the end
+        for (int i = 0; i < toIndex; i++) {
+            linkedList.add(start.getElement());
+            start = start.getNextNode();
+        }
+
+        return linkedList;
     }
 
     /**
@@ -501,7 +565,7 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public boolean retainAll(Collection c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -524,7 +588,17 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public boolean removeAll(Collection c) {
-        return false;
+        if(!containsAll(c)){
+            return false;
+        } else {
+            for (Object o : c){
+                if (!remove(o)){
+                    throw new NullPointerException();
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -547,7 +621,13 @@ public class MLinkedList<Type> implements List{
      */
     @Override
     public boolean containsAll(Collection c) {
-        return false;
+        for (Object o : c){
+            if(!c.contains(o)){
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -598,10 +678,16 @@ public class MLinkedList<Type> implements List{
         private Node<T> nextNode;
         private T element;
 
+        public Node(T element){
+            this.element = element;
+            this.nextNode = null;
+        }
+
         public Node(T element, Node<T> nextNode){
             this.element = element;
             this.nextNode = nextNode;
         }
+
 
         public Node getNextNode() {
             return nextNode;
@@ -625,5 +711,175 @@ public class MLinkedList<Type> implements List{
         }
 
         public boolean containsNextNode() {return nextNode != null;}
+    }
+
+    class LLIterator implements ListIterator{
+        private final MLinkedList<T> linkedList;
+        private Node<T> current;
+        private int count = 0;
+
+        LLIterator(MLinkedList<T> linkedList){
+            this.linkedList = linkedList;
+            this.current = (Node<T>) linkedList.get(0);
+        }
+
+        /**
+         * Returns {@code true} if the iteration has more elements.
+         * (In other words, returns {@code true} if {@link #next} would
+         * return an element rather than throwing an exception.)
+         *
+         * @return {@code true} if the iteration has more elements
+         */
+        @Override
+        public boolean hasNext() {
+            return current.containsNextNode();
+        }
+
+        /**
+         * Returns the next element in the iteration.
+         *
+         * @return the next element in the iteration
+         * @throws NoSuchElementException if the iteration has no more elements
+         */
+        @Override
+        public Object next() {
+            if (current.containsNextNode()){
+                return current.getNextNode();
+            } else {
+                throw new NoSuchElementException();
+            }
+
+        }
+
+        /**
+         * Returns {@code true} if this list iterator has more elements when
+         * traversing the list in the reverse direction.  (In other words,
+         * returns {@code true} if {@link #previous} would return an element
+         * rather than throwing an exception.)
+         *
+         * @return {@code true} if the list iterator has more elements when
+         * traversing the list in the reverse direction
+         */
+        @Override
+        public boolean hasPrevious() {
+            return false;
+        }
+
+        /**
+         * Returns the previous element in the list and moves the cursor
+         * position backwards.  This method may be called repeatedly to
+         * iterate through the list backwards, or intermixed with calls to
+         * {@link #next} to go back and forth.  (Note that alternating calls
+         * to {@code next} and {@code previous} will return the same
+         * element repeatedly.)
+         *
+         * @return the previous element in the list
+         * @throws NoSuchElementException if the iteration has no previous
+         *                                element
+         */
+        @Override
+        public Object previous() {
+            throw new NoSuchElementException();
+        }
+
+        /**
+         * Returns the index of the element that would be returned by a
+         * subsequent call to {@link #next}. (Returns list size if the list
+         * iterator is at the end of the list.)
+         *
+         * @return the index of the element that would be returned by a
+         * subsequent call to {@code next}, or list size if the list
+         * iterator is at the end of the list
+         */
+        @Override
+        public int nextIndex() {
+            return count+1;
+        }
+
+        /**
+         * Returns the index of the element that would be returned by a
+         * subsequent call to {@link #previous}. (Returns -1 if the list
+         * iterator is at the beginning of the list.)
+         *
+         * @return the index of the element that would be returned by a
+         * subsequent call to {@code previous}, or -1 if the list
+         * iterator is at the beginning of the list
+         */
+        @Override
+        public int previousIndex() {
+            return count-1;
+        }
+
+        /**
+         * Removes from the underlying collection the last element returned
+         * by this iterator (optional operation).  This method can be called
+         * only once per call to {@link #next}.  The behavior of an iterator
+         * is unspecified if the underlying collection is modified while the
+         * iteration is in progress in any way other than by calling this
+         * method.
+         *
+         * @throws UnsupportedOperationException if the {@code remove}
+         *                                       operation is not supported by this iterator
+         * @throws IllegalStateException         if the {@code next} method has not
+         *                                       yet been called, or the {@code remove} method has already
+         *                                       been called after the last call to the {@code next}
+         *                                       method
+         * @implSpec The default implementation throws an instance of
+         * {@link UnsupportedOperationException} and performs no other action.
+         */
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Replaces the last element returned by {@link #next} or
+         * {@link #previous} with the specified element (optional operation).
+         * This call can be made only if neither {@link #remove} nor {@link
+         * #add} have been called after the last call to {@code next} or
+         * {@code previous}.
+         *
+         * @param o the element with which to replace the last element returned by
+         *          {@code next} or {@code previous}
+         * @throws UnsupportedOperationException if the {@code set} operation
+         *                                       is not supported by this list iterator
+         * @throws ClassCastException            if the class of the specified element
+         *                                       prevents it from being added to this list
+         * @throws IllegalArgumentException      if some aspect of the specified
+         *                                       element prevents it from being added to this list
+         * @throws IllegalStateException         if neither {@code next} nor
+         *                                       {@code previous} have been called, or {@code remove} or
+         *                                       {@code add} have been called after the last call to
+         *                                       {@code next} or {@code previous}
+         */
+        @Override
+        public void set(Object o) {
+
+        }
+
+        /**
+         * Inserts the specified element into the list (optional operation).
+         * The element is inserted immediately before the element that
+         * would be returned by {@link #next}, if any, and after the element
+         * that would be returned by {@link #previous}, if any.  (If the
+         * list contains no elements, the new element becomes the sole element
+         * on the list.)  The new element is inserted before the implicit
+         * cursor: a subsequent call to {@code next} would be unaffected, and a
+         * subsequent call to {@code previous} would return the new element.
+         * (This call increases by one the value that would be returned by a
+         * call to {@code nextIndex} or {@code previousIndex}.)
+         *
+         * @param o the element to insert
+         * @throws UnsupportedOperationException if the {@code add} method is
+         *                                       not supported by this list iterator
+         * @throws ClassCastException            if the class of the specified element
+         *                                       prevents it from being added to this list
+         * @throws IllegalArgumentException      if some aspect of this element
+         *                                       prevents it from being added to this list
+         */
+        @Override
+        public void add(Object o) {
+
+        }
     }
 }
