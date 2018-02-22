@@ -93,7 +93,7 @@ public class MLinkedList<T> implements List{
             count++;
         }
         //Final element
-        array[count] = currentNode.getElement();
+//        array[count-1] = currentNode.getElement();
         return array;
     }
 
@@ -340,7 +340,7 @@ public class MLinkedList<T> implements List{
         } else if(element == null){
             throw new NullPointerException();
         }
-        Node<T> current = null;
+        Node<T> current = first;
         for (int i = 0; i < index; i++) {
             current = current.getNextNode();
         }
@@ -350,6 +350,7 @@ public class MLinkedList<T> implements List{
         } else {
             current.setNextNode(new Node<T>((T) element));
         }
+        total++;
     }
 
     /**
@@ -720,7 +721,7 @@ public class MLinkedList<T> implements List{
 
         LLIterator(MLinkedList<T> linkedList){
             this.linkedList = linkedList;
-            this.current = (Node<T>) linkedList.get(0);
+            this.current = linkedList.first;
         }
 
         /**
@@ -744,7 +745,9 @@ public class MLinkedList<T> implements List{
         @Override
         public Object next() {
             if (current.containsNextNode()){
-                return current.getNextNode();
+                Object element = current.getElement();
+                current = current.getNextNode();
+                return element;
             } else {
                 throw new NoSuchElementException();
             }
