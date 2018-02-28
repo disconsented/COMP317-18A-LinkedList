@@ -1,9 +1,50 @@
 import java.util.*;
 
-public class MLinkedList<T> implements List{
+public class MLinkedList<Object extends Comparable> implements List{
     private int total;
-    private Node<T> first;
+    private Node<Object> first;
 
+    public static MLinkedList quickSort(MLinkedList a, int low, int high){
+        if(high > low && high > 1) {
+
+            int p = a.partition(low, high);
+
+            quickSort(a, low, p);
+            quickSort(a, p + 1, high);
+        }
+        return a;
+    }
+
+    private int partition (int low, int high){
+        Node pivot = first;
+
+        for (int x = 0; x < low; x++) {
+            pivot = pivot.getNextNode();
+        }
+
+        int i = low - 1;
+        int j = high + 1;
+
+        while (true){
+            do {
+                i++;
+                System.out.println(getNode(i).getElement()+":"+pivot.getElement());
+            } while (getNode(i).getElement().compareTo(pivot.getElement()) < 0);
+
+            do{
+                j--;
+                System.out.println(getNode(i).getElement()+":"+pivot.getElement());
+            } while (getNode(j).getElement().compareTo(pivot.getElement()) > 0);
+
+            if ( i >= j)
+                return j;
+
+            Comparable a = get(i);
+            Comparable b = get(j);
+            set(i, b);
+            set(j, a);
+        }
+    }
 
     /**
      * Returns the number of elements in this list.  If this list contains
@@ -43,7 +84,7 @@ public class MLinkedList<T> implements List{
      *                              (<a href="Collection.html#optional-restrictions">optional</a>)
      */
     @Override
-    public boolean contains(Object o) {
+    public boolean contains(java.lang.Object o) {
         Node currentNode = first;
         while (currentNode.getElement() != o){
             Node nextNode = currentNode.getNextNode();
@@ -80,11 +121,11 @@ public class MLinkedList<T> implements List{
      *
      * @return an array containing all of the elements in this list in proper
      * sequence
-     * @see Arrays#asList(Object[])
+     * @see Arrays#asList(java.lang.Object[])
      */
     @Override
-    public Object[] toArray() {
-        Object[] array = new Object[total];
+    public java.lang.Object[] toArray() {
+        java.lang.Object[] array = new java.lang.Object[total];
         Node currentNode = first;
         int count = 0;
         while (currentNode.containsNextNode()){
@@ -120,13 +161,13 @@ public class MLinkedList<T> implements List{
      *                                       prevents it from being added to this list
      */
     @Override
-    public boolean add(Object o) {
+    public boolean add(java.lang.Object o) {
         if(o == null){
             throw new NullPointerException();
         }
 
         if (first == null){
-            first = new Node(o, null);
+            first = new Node((Comparable) o, null);
             total++;
             return true;
         } else {
@@ -134,10 +175,28 @@ public class MLinkedList<T> implements List{
             while (currentNode.getNextNode() != null){
                 currentNode = currentNode.getNextNode();
             }
-            currentNode.setNextNode(new Node(o, null));
+            currentNode.setNextNode(new Node((Comparable)o, null));
             total++;
             return true;
         }
+    }
+
+    public boolean append(MLinkedList mLinkedList){
+        if(first == null){
+            first = mLinkedList.first;
+        } else {
+            Node current = first;
+            while (current.containsNextNode()){
+                current = current.getNextNode();
+            }
+            System.out.println("Append almost exit");
+            current.setNextNode(mLinkedList.first);
+        }
+
+
+        //Placed here to avoid any errors cropping up
+        total += mLinkedList.size();
+        return true;
     }
 
     /**
@@ -162,7 +221,7 @@ public class MLinkedList<T> implements List{
      *                                       is not supported by this list
      */
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(java.lang.Object o) {
         Node currentNode = first;
         Node previous = null;
         while (currentNode != null){
@@ -201,11 +260,14 @@ public class MLinkedList<T> implements List{
      *                                       elements, or if the specified collection is null
      * @throws IllegalArgumentException      if some property of an element of the
      *                                       specified collection prevents it from being added to this list
-     * @see #add(Object)
+     * @see #add(java.lang.Object)
      */
     @Override
     public boolean addAll(Collection c) {
-        return false;
+        MLinkedList list = (MLinkedList) c;
+        add(list.first);
+
+        return true;
     }
 
     /**
@@ -262,8 +324,8 @@ public class MLinkedList<T> implements List{
      *                                   (<tt>index &lt; 0 || index &gt;= size()</tt>)
      */
     @Override
-    public Object get(int index) {
-        if (index > total){
+    public Comparable get(int index) {
+        if (index >= total){
             throw  new IndexOutOfBoundsException();
         } else if(first == null){
             return null;
@@ -275,6 +337,20 @@ public class MLinkedList<T> implements List{
             return node.getElement();
         }
 
+    }
+
+    public Node getNode(int index){
+        if (index >= total){
+            throw  new IndexOutOfBoundsException();
+        } else if(first == null){
+            return null;
+        } else {
+            Node node = first;
+            for (int i = 0; i < index; i++) {
+                node = node.getNextNode();
+            }
+            return node;
+        }
     }
 
     /**
@@ -296,20 +372,20 @@ public class MLinkedList<T> implements List{
      *                                       (<tt>index &lt; 0 || index &gt;= size()</tt>)
      */
     @Override
-    public Object set(int index, Object element) {
-        if (index > total)
+    public java.lang.Object set(int index, java.lang.Object element) {
+        if (index >= total)
             throw new IndexOutOfBoundsException();
 
         if (element == null)
             throw new NullPointerException();
 
-        Object oldElement = null;
+        java.lang.Object oldElement = null;
         Node currentNode = first;
         for (int i = 0; i < index; i++) {
             currentNode = currentNode.getNextNode();
         }
         oldElement = currentNode.getElement();
-        currentNode.setElement(element);
+        currentNode.setElement((Comparable)element);
 
         return oldElement;
     }
@@ -334,21 +410,21 @@ public class MLinkedList<T> implements List{
      *                                       (<tt>index &lt; 0 || index &gt; size()</tt>)
      */
     @Override
-    public void add(int index, Object element) {
+    public void add(int index, java.lang.Object element) {
         if (1 > index || index > size()){
             throw new IndexOutOfBoundsException();
         } else if(element == null){
             throw new NullPointerException();
         }
-        Node<T> current = first;
+        Node<Object> current = first;
         for (int i = 0; i < index; i++) {
             current = current.getNextNode();
         }
         if(current.containsNextNode()){
-            Node node = new Node<T>((T) element, current.getNextNode());
+            Node node = new Node<Object>((Object) element, current.getNextNode());
             current.setNextNode(node);
         } else {
-            current.setNextNode(new Node<T>((T) element));
+            current.setNextNode(new Node<Object>((Object) element));
         }
         total++;
     }
@@ -367,7 +443,7 @@ public class MLinkedList<T> implements List{
      *                                       (<tt>index &lt; 0 || index &gt;= size()</tt>)
      */
     @Override
-    public Object remove(int index) {
+    public java.lang.Object remove(int index) {
         Node previous = null;
         Node current = first;
         for (int i = 0; i < index; i++) {
@@ -378,7 +454,7 @@ public class MLinkedList<T> implements List{
         if(current == null){
             return null;
         } else {
-            Object element = current.getElement();
+            java.lang.Object element = current.getElement();
             previous.setNextNode(current.getNextNode());
             total--;
             return element;
@@ -404,7 +480,7 @@ public class MLinkedList<T> implements List{
      *                              (<a href="Collection.html#optional-restrictions">optional</a>)
      */
     @Override
-    public int indexOf(Object o) {
+    public int indexOf(java.lang.Object o) {
         Node currentNode = first;
         for (int i = 0; i < total; i++) {
             if(currentNode.getElement() == o){
@@ -435,7 +511,7 @@ public class MLinkedList<T> implements List{
      *                              (<a href="Collection.html#optional-restrictions">optional</a>)
      */
     @Override
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(java.lang.Object o) {
         int index = -1;
         Node currentNode = first;
         for (int i = 0; i < total; i++) {
@@ -528,7 +604,7 @@ public class MLinkedList<T> implements List{
         if(1 > fromIndex || toIndex > total){
             throw new IndexOutOfBoundsException();
         }
-        MLinkedList<T> linkedList = new MLinkedList();
+        MLinkedList<Object> linkedList = new MLinkedList();
         Node start = first;
         //Itterate to where we want to be
         for (int i = 0; i < fromIndex; i++) {
@@ -540,6 +616,7 @@ public class MLinkedList<T> implements List{
             linkedList.add(start.getElement());
             start = start.getNextNode();
         }
+        linkedList.first = start;
 
         return linkedList;
     }
@@ -561,8 +638,8 @@ public class MLinkedList<T> implements List{
      *                                       specified collection does not permit null elements
      *                                       (<a href="Collection.html#optional-restrictions">optional</a>),
      *                                       or if the specified collection is null
-     * @see #remove(Object)
-     * @see #contains(Object)
+     * @see #remove(java.lang.Object)
+     * @see #contains(java.lang.Object)
      */
     @Override
     public boolean retainAll(Collection c) {
@@ -584,15 +661,15 @@ public class MLinkedList<T> implements List{
      *                                       specified collection does not permit null elements
      *                                       (<a href="Collection.html#optional-restrictions">optional</a>),
      *                                       or if the specified collection is null
-     * @see #remove(Object)
-     * @see #contains(Object)
+     * @see #remove(java.lang.Object)
+     * @see #contains(java.lang.Object)
      */
     @Override
     public boolean removeAll(Collection c) {
         if(!containsAll(c)){
             return false;
         } else {
-            for (Object o : c){
+            for (java.lang.Object o : c){
                 if (!remove(o)){
                     throw new NullPointerException();
                 }
@@ -618,11 +695,11 @@ public class MLinkedList<T> implements List{
      *                              elements
      *                              (<a href="Collection.html#optional-restrictions">optional</a>),
      *                              or if the specified collection is null
-     * @see #contains(Object)
+     * @see #contains(java.lang.Object)
      */
     @Override
     public boolean containsAll(Collection c) {
-        for (Object o : c){
+        for (java.lang.Object o : c){
             if(!c.contains(o)){
                 return false;
             }
@@ -671,11 +748,11 @@ public class MLinkedList<T> implements List{
      * @throws NullPointerException if the specified array is null
      */
     @Override
-    public Object[] toArray(Object[] a) {
-        return new Object[0];
+    public java.lang.Object[] toArray(java.lang.Object[] a) {
+        return new java.lang.Object[0];
     }
 
-    class Node<T> {
+    class Node<T extends Comparable> {
         private Node<T> nextNode;
         private T element;
 
@@ -694,7 +771,7 @@ public class MLinkedList<T> implements List{
             return nextNode;
         }
 
-        public Object getElement() {
+        public T getElement() {
             return element;
         }
 
@@ -703,23 +780,18 @@ public class MLinkedList<T> implements List{
         }
 
         public void setNextNode(Node<T> nextNode) {
-            if(nextNode != null){
                 this.nextNode = nextNode;
-            } else {
-                throw new NullPointerException();
-            }
-
         }
 
         public boolean containsNextNode() {return nextNode != null;}
     }
 
     class LLIterator implements ListIterator{
-        private final MLinkedList<T> linkedList;
-        private Node<T> current;
+        private final MLinkedList<Object> linkedList;
+        private Node<Object> current;
         private int count = 0;
 
-        LLIterator(MLinkedList<T> linkedList){
+        LLIterator(MLinkedList<Object> linkedList){
             this.linkedList = linkedList;
             this.current = linkedList.first;
         }
@@ -743,9 +815,9 @@ public class MLinkedList<T> implements List{
          * @throws NoSuchElementException if the iteration has no more elements
          */
         @Override
-        public Object next() {
+        public java.lang.Object next() {
             if (current.containsNextNode()){
-                Object element = current.getElement();
+                java.lang.Object element = current.getElement();
                 current = current.getNextNode();
                 return element;
             } else {
@@ -781,7 +853,7 @@ public class MLinkedList<T> implements List{
          *                                element
          */
         @Override
-        public Object previous() {
+        public java.lang.Object previous() {
             throw new NoSuchElementException();
         }
 
@@ -856,8 +928,8 @@ public class MLinkedList<T> implements List{
          *                                       {@code next} or {@code previous}
          */
         @Override
-        public void set(Object o) {
-            current.setElement((T) o);
+        public void set(java.lang.Object o) {
+            current.setElement((Object) o);
         }
 
         /**
@@ -881,8 +953,8 @@ public class MLinkedList<T> implements List{
          *                                       prevents it from being added to this list
          */
         @Override
-        public void add(Object o) {
-            current.setNextNode(new Node<T>((T) o, current.getNextNode()));
+        public void add(java.lang.Object o) {
+            current.setNextNode(new Node<Object>((Object) o, current.getNextNode()));
         }
     }
 }

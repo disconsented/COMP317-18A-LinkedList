@@ -60,6 +60,13 @@ public class Main {
             System.out.println("Iterator (partial):"+listIterator2.next());
         }
 
+        readList(linkedList);
+
+        System.out.println("###QS###");
+        MLinkedList.quickSort(linkedList, 0, linkedList.size() - 2);
+        readList(linkedList);
+        System.out.println("Done");
+
     }
 
     private static int getRandomInt() {
