@@ -63,7 +63,7 @@ public class Main {
         readList(linkedList);
 
         System.out.println("###QS###");
-        MLinkedList.quickSort(linkedList, 0, linkedList.size() - 2);
+        MLinkedList.quickSort(linkedList, 0, linkedList.size() - 1);
         readList(linkedList);
         System.out.println("Done");
 

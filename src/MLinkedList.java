@@ -5,7 +5,7 @@ public class MLinkedList<Object extends Comparable> implements List{
     private Node<Object> first;
 
     public static MLinkedList quickSort(MLinkedList a, int low, int high){
-        if(high > low && high > 1) {
+        if(high > low) {
 
             int p = a.partition(low, high);
 
@@ -28,12 +28,12 @@ public class MLinkedList<Object extends Comparable> implements List{
         while (true){
             do {
                 i++;
-                System.out.println(getNode(i).getElement()+":"+pivot.getElement());
+//                System.out.println(getNode(i).getElement()+":"+pivot.getElement());
             } while (getNode(i).getElement().compareTo(pivot.getElement()) < 0);
 
             do{
                 j--;
-                System.out.println(getNode(i).getElement()+":"+pivot.getElement());
+//                System.out.println(getNode(i).getElement()+":"+pivot.getElement());
             } while (getNode(j).getElement().compareTo(pivot.getElement()) > 0);
 
             if ( i >= j)
