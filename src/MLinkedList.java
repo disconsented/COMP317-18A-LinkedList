@@ -25,9 +25,9 @@ public class MLinkedList<Object extends Comparable> implements List{
 
                 //Append the node to avoid creating new objects
                 if(head.compareTo(comparable) > 0){
-                    small.add(current);
+                    small.append(old);
                 } else {
-                    large.add(current);
+                    large.append(old);
                 }
             }
 
@@ -230,7 +230,22 @@ public class MLinkedList<Object extends Comparable> implements List{
         }
     }
 
-    public boolean append(Object object){
+    public void append(Node node){
+        if(first == null){
+            first = node;
+        } else {
+            Node current = first;
+            while (current.containsNextNode()){
+                current = current.getNextNode();
+            }
+            current.setNextNode(node);
+        }
+
+        //Placed here to avoid any errors cropping up
+        total ++;
+    }
+
+    public void append(Object object){
         if(first == null){
             first = new Node(object);
         } else {
@@ -243,11 +258,9 @@ public class MLinkedList<Object extends Comparable> implements List{
 
         //Placed here to avoid any errors cropping up
         total ++;
-        return true;
-
     }
 
-    public boolean append(MLinkedList mLinkedList){
+    public void append(MLinkedList mLinkedList){
         if(first == null){
             first = mLinkedList.first;
         } else {
@@ -260,7 +273,6 @@ public class MLinkedList<Object extends Comparable> implements List{
 
         //Placed here to avoid any errors cropping up
         total += mLinkedList.size();
-        return true;
     }
 
     /**
