@@ -6,30 +6,40 @@ public class MLinkedList<Object extends Comparable> implements List{
 
     public void qSort(){
         if(size() > 1){
+            //Return the right most element to use as the head
             Comparable head = remove(size()-1);
-            ListIterator iterator =  listIterator();
+
+            //Create the new small and large lists
             MLinkedList small = new MLinkedList();
             MLinkedList large = new MLinkedList();
 
-//            Node old = null;
+            //Iterate through all of the remaining elements sorting them into either list
             Node current = first;
             for (int i = 0; i < size(); i++) {
                 Comparable comparable = current.getElement();
+
+                //Get the next node and unlink the old node without destorying it
                 Node old = current;
                 current = current.getNextNode();
                 old.setNextNode(null);
+
+                //Append the node to avoid creating new objects
                 if(head.compareTo(comparable) > 0){
-                    small.append(comparable);
+                    small.add(current);
                 } else {
-                    large.append(comparable);
+                    large.add(current);
                 }
             }
 
+            //Sort the lists without the head element to avoid infinite recursion
             small.qSort();
             large.qSort();
 
+            //Append the head and then the large list to the small one
             small.append(head);
             small.append(large);
+
+            //Set the parent list to be the small one
             first = small.first;
             total = small.total;
         }
