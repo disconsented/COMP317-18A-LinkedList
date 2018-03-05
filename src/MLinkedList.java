@@ -4,6 +4,44 @@ public class MLinkedList<Object extends Comparable> implements List{
     private int total;
     private Node<Object> first;
 
+    public void qSort(){
+        if(size() > 1){
+            Comparable head = remove(size()-1);
+            ListIterator iterator =  listIterator();
+            MLinkedList small = new MLinkedList();
+            MLinkedList large = new MLinkedList();
+
+            //Probably cheaper overall to unhook/rehook rather than create a new object each time
+            while (iterator.hasNext()){
+                Comparable next = (Comparable) iterator.next();
+                if(head.compareTo(next) > 0){
+                    small.append(next);
+                } else {
+                    large.append(next);
+                }
+
+            }
+
+            small.qSort();
+            large.qSort();
+
+            //Append afterwards in order to avoid infinite recursion
+            small.append(head);
+            //Clear so we dont append onto the old list
+            clear();
+
+            append(small);
+            append(large);
+        }
+    }
+
+    /**
+     * Quicksort using the Hoare Partition scheme
+     * @param a The MLinkedList to sort
+     * @param low Low side to start from
+     * @param high High side to start from
+     * @return The sorted list
+     */
     public static MLinkedList quickSort(MLinkedList a, int low, int high){
         if(high > low) {
 
@@ -39,6 +77,7 @@ public class MLinkedList<Object extends Comparable> implements List{
             if ( i >= j)
                 return j;
 
+            //Swap
             Comparable a = get(i);
             Comparable b = get(j);
             set(i, b);
@@ -181,6 +220,23 @@ public class MLinkedList<Object extends Comparable> implements List{
         }
     }
 
+    public boolean append(Object object){
+        if(first == null){
+            first = new Node(object);
+        } else {
+            Node current = first;
+            while (current.containsNextNode()){
+                current = current.getNextNode();
+            }
+            current.setNextNode(new Node(object));
+        }
+
+        //Placed here to avoid any errors cropping up
+        total ++;
+        return true;
+
+    }
+
     public boolean append(MLinkedList mLinkedList){
         if(first == null){
             first = mLinkedList.first;
@@ -189,10 +245,8 @@ public class MLinkedList<Object extends Comparable> implements List{
             while (current.containsNextNode()){
                 current = current.getNextNode();
             }
-            System.out.println("Append almost exit");
             current.setNextNode(mLinkedList.first);
         }
-
 
         //Placed here to avoid any errors cropping up
         total += mLinkedList.size();
@@ -443,7 +497,11 @@ public class MLinkedList<Object extends Comparable> implements List{
      *                                       (<tt>index &lt; 0 || index &gt;= size()</tt>)
      */
     @Override
-    public java.lang.Object remove(int index) {
+    public Comparable remove(int index) {
+        if(index >= size() || 0 > index){
+            throw new IndexOutOfBoundsException("Cannot get " + index);
+        }
+
         Node previous = null;
         Node current = first;
         for (int i = 0; i < index; i++) {
@@ -454,7 +512,8 @@ public class MLinkedList<Object extends Comparable> implements List{
         if(current == null){
             return null;
         } else {
-            java.lang.Object element = current.getElement();
+            Comparable element = current.getElement();
+            if(current.getNextNode() != null)
             previous.setNextNode(current.getNextNode());
             total--;
             return element;
@@ -815,9 +874,9 @@ public class MLinkedList<Object extends Comparable> implements List{
          * @throws NoSuchElementException if the iteration has no more elements
          */
         @Override
-        public java.lang.Object next() {
+        public Comparable next() {
             if (current.containsNextNode()){
-                java.lang.Object element = current.getElement();
+                Comparable element = current.getElement();
                 current = current.getNextNode();
                 return element;
             } else {
