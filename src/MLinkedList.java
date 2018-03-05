@@ -28,13 +28,10 @@ public class MLinkedList<Object extends Comparable> implements List{
             small.qSort();
             large.qSort();
 
-            //Append afterwards in order to avoid infinite recursion
             small.append(head);
-            //Clear so we dont append onto the old list
-            clear();
-
-            append(small);
-            append(large);
+            small.append(large);
+            first = small.first;
+            total = small.total;
         }
     }
 
