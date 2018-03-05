@@ -11,15 +11,18 @@ public class MLinkedList<Object extends Comparable> implements List{
             MLinkedList small = new MLinkedList();
             MLinkedList large = new MLinkedList();
 
-            //Probably cheaper overall to unhook/rehook rather than create a new object each time
-            while (iterator.hasNext()){
-                Comparable next = (Comparable) iterator.next();
-                if(head.compareTo(next) > 0){
-                    small.append(next);
+//            Node old = null;
+            Node current = first;
+            for (int i = 0; i < size(); i++) {
+                Comparable comparable = current.getElement();
+                Node old = current;
+                current = current.getNextNode();
+                old.setNextNode(null);
+                if(head.compareTo(comparable) > 0){
+                    small.append(comparable);
                 } else {
-                    large.append(next);
+                    large.append(comparable);
                 }
-
             }
 
             small.qSort();
